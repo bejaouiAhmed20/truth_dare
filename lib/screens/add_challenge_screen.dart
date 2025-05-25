@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/game_provider.dart';
 import '../models/models.dart';
+import '../services/sound_service.dart';
 
 class AddChallengeScreen extends StatefulWidget {
   const AddChallengeScreen({super.key});
@@ -297,6 +298,7 @@ class _AddChallengeScreenState extends State<AddChallengeScreen> {
                                   );
                                 }).toList(),
                             onChanged: (value) {
+                              SoundService().playClickSound();
                               setState(() {
                                 _selectedCategoryId = value;
                               });
@@ -471,6 +473,7 @@ class _AddChallengeScreenState extends State<AddChallengeScreen> {
 
     return GestureDetector(
       onTap: () {
+        SoundService().playClickSound();
         setState(() {
           _selectedType = value;
         });
@@ -533,6 +536,7 @@ class _AddChallengeScreenState extends State<AddChallengeScreen> {
 
     return GestureDetector(
       onTap: () {
+        SoundService().playClickSound();
         setState(() {
           _selectedGender = value;
         });
@@ -590,6 +594,8 @@ class _AddChallengeScreenState extends State<AddChallengeScreen> {
   }
 
   void _submitChallenge() async {
+    SoundService().playClickSound();
+
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;

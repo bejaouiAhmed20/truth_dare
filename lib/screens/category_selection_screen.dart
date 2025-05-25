@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/game_provider.dart';
 import '../models/models.dart';
+import '../services/sound_service.dart';
 import 'game_screen.dart';
 
 class CategorySelectionScreen extends StatefulWidget {
@@ -69,6 +70,32 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          // Sound toggle button
+          IconButton(
+            icon: Icon(
+              SoundService().soundEnabled ? Icons.volume_up : Icons.volume_off,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                SoundService().toggleSound();
+              });
+            },
+          ),
+          // Music toggle button
+          IconButton(
+            icon: Icon(
+              SoundService().musicEnabled ? Icons.music_note : Icons.music_off,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                SoundService().toggleMusic();
+              });
+            },
+          ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -379,6 +406,7 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           onTap: () {
+            SoundService().playClickSound();
             setState(() {
               // If already selected, deselect it
               if (isSelected) {
@@ -558,6 +586,8 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
   }
 
   void _startGame() async {
+    SoundService().playClickSound();
+
     if (_selectedCategoryId == null) {
       ScaffoldMessenger.of(
         context,

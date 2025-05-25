@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../providers/game_provider.dart';
+import '../services/sound_service.dart';
 import 'add_challenge_screen.dart';
 import 'category_selection_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -314,6 +316,28 @@ class HomeScreen extends StatelessWidget {
 
                         const SizedBox(height: 20),
 
+                        // Test Sound Button (Debug only)
+                        if (kDebugMode) ...[
+                          _buildButton(
+                                context,
+                                'Test Sounds',
+                                Icons.volume_up,
+                                () => _testSounds(context),
+                                const LinearGradient(
+                                  colors: [
+                                    Color(0xFFFF9800),
+                                    Color(0xFFFF5722),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              )
+                              .animate()
+                              .fade(duration: 1350.ms)
+                              .slideY(begin: 0.2, end: 0),
+                          const SizedBox(height: 20),
+                        ],
+
                         // Settings Button
                         _buildButton(
                               context,
@@ -362,7 +386,12 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: () {
+          if (kDebugMode)
+            print('HomeScreen: Button pressed, playing click sound');
+          SoundService().playClickSound();
+          onPressed();
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
@@ -504,56 +533,157 @@ class HomeScreen extends StatelessWidget {
     ).push(MaterialPageRoute(builder: (context) => const AddChallengeScreen()));
   }
 
+  void _testSounds(BuildContext context) async {
+    final soundService = SoundService();
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => const AlertDialog(
+            title: Text('Testing Sounds'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Testing audio files...'),
+              ],
+            ),
+          ),
+    );
+
+    // Test all sounds
+    await soundService.testSounds();
+
+    // Test individual sounds with delay
+    await Future.delayed(const Duration(milliseconds: 500));
+    await soundService.playClickSound();
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    await soundService.playResultSound();
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    await soundService.playSpinSound();
+
+    // Close loading dialog
+    if (context.mounted) {
+      Navigator.of(context).pop();
+
+      // Show result
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sound test completed! Check console for details.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   void _showSettingsDialog(BuildContext context) {
     final gameProvider = Provider.of<GameProvider>(context, listen: false);
+    final soundService = SoundService();
 
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            title: Text(
-              'Game Settings',
-              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SwitchListTile(
-                  title: const Text('Include Custom Challenges'),
-                  value: gameProvider.includeCustomChallenges,
-                  onChanged: (value) {
-                    gameProvider.updateSettings(includeCustomChallenges: value);
-                    Navigator.of(context).pop();
-                    _showSettingsDialog(context);
-                  },
+          (context) => StatefulBuilder(
+            builder:
+                (context, setState) => AlertDialog(
+                  title: Text(
+                    'Game Settings',
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Sound Effects Control
+                      SwitchListTile(
+                        title: Row(
+                          children: [
+                            Icon(Icons.volume_up, size: 20),
+                            SizedBox(width: 8),
+                            Text('Sound Effects'),
+                          ],
+                        ),
+                        subtitle: Text('Button clicks and game sounds'),
+                        value: soundService.soundEnabled,
+                        onChanged: (value) {
+                          soundService.playClickSound();
+                          setState(() {
+                            soundService.setSoundEnabled(value);
+                          });
+                        },
+                      ),
+
+                      // Background Music Control
+                      SwitchListTile(
+                        title: Row(
+                          children: [
+                            Icon(Icons.music_note, size: 20),
+                            SizedBox(width: 8),
+                            Text('Background Music'),
+                          ],
+                        ),
+                        subtitle: Text('Music for extreme/hard categories'),
+                        value: soundService.musicEnabled,
+                        onChanged: (value) {
+                          soundService.playClickSound();
+                          setState(() {
+                            soundService.setMusicEnabled(value);
+                          });
+                        },
+                      ),
+
+                      Divider(),
+
+                      // Game Settings
+                      SwitchListTile(
+                        title: const Text('Include Custom Challenges'),
+                        value: gameProvider.includeCustomChallenges,
+                        onChanged: (value) {
+                          soundService.playClickSound();
+                          gameProvider.updateSettings(
+                            includeCustomChallenges: value,
+                          );
+                          Navigator.of(context).pop();
+                          _showSettingsDialog(context);
+                        },
+                      ),
+                      SwitchListTile(
+                        title: const Text('Truth Questions'),
+                        value: gameProvider.truthsEnabled,
+                        onChanged: (value) {
+                          soundService.playClickSound();
+                          gameProvider.updateSettings(truthsEnabled: value);
+                          Navigator.of(context).pop();
+                          _showSettingsDialog(context);
+                        },
+                      ),
+                      SwitchListTile(
+                        title: const Text('Dare Challenges'),
+                        value: gameProvider.daresEnabled,
+                        onChanged: (value) {
+                          soundService.playClickSound();
+                          gameProvider.updateSettings(daresEnabled: value);
+                          Navigator.of(context).pop();
+                          _showSettingsDialog(context);
+                        },
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        soundService.playClickSound();
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Close'),
+                    ),
+                  ],
                 ),
-                SwitchListTile(
-                  title: const Text('Truth Questions'),
-                  value: gameProvider.truthsEnabled,
-                  onChanged: (value) {
-                    gameProvider.updateSettings(truthsEnabled: value);
-                    Navigator.of(context).pop();
-                    _showSettingsDialog(context);
-                  },
-                ),
-                SwitchListTile(
-                  title: const Text('Dare Challenges'),
-                  value: gameProvider.daresEnabled,
-                  onChanged: (value) {
-                    gameProvider.updateSettings(daresEnabled: value);
-                    Navigator.of(context).pop();
-                    _showSettingsDialog(context);
-                  },
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
-              ),
-            ],
           ),
     );
   }

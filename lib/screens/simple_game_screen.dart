@@ -150,9 +150,18 @@ class _SimpleGameScreenState extends State<SimpleGameScreen> {
 
   void _startBackgroundMusicIfNeeded() {
     final categoryName = widget.selectedCategory?.name?.toLowerCase();
-    if (categoryName != null &&
-        (categoryName == 'extreme' || categoryName == 'hard')) {
-      _soundService.playBackgroundMusic();
+    if (categoryName != null) {
+      // Play background music for categories that have music
+      final categoriesWithMusic = [
+        'extreme',
+        'hard',
+        'romantic',
+        'soft',
+        'hot',
+      ];
+      if (categoriesWithMusic.contains(categoryName)) {
+        _soundService.playBackgroundMusic(categoryName);
+      }
     }
   }
 
@@ -391,6 +400,25 @@ class _SimpleGameScreenState extends State<SimpleGameScreen> {
                       onPressed: () {
                         _soundService.playClickSound();
                         _getRandomChallenge();
+                      },
+                    ),
+                    // Music control button
+                    IconButton(
+                      icon: Icon(
+                        _soundService.musicEnabled
+                            ? Icons.music_note
+                            : Icons.music_off,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        _soundService.playClickSound();
+                        setState(() {
+                          _soundService.toggleMusic();
+                          // Restart music if enabled, stop if disabled
+                          if (_soundService.musicEnabled) {
+                            _startBackgroundMusicIfNeeded();
+                          }
+                        });
                       },
                     ),
                   ],
