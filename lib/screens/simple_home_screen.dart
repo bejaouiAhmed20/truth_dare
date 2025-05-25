@@ -5,6 +5,8 @@ import 'settings_screen.dart';
 import 'romantic_about_screen.dart';
 import 'add_question_screen.dart';
 import 'spin_wheel_screen.dart';
+import 'emotions_screen.dart';
+import '../services/sound_service.dart';
 
 class SimpleHomeScreen extends StatelessWidget {
   const SimpleHomeScreen({super.key});
@@ -240,6 +242,25 @@ class SimpleHomeScreen extends StatelessWidget {
                       ),
                     ),
                     Colors.teal.shade600,
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  // Emotions Button
+                  _buildButton(
+                    context,
+                    '💝 Share Your Emotions',
+                    Icons.emoji_emotions_rounded,
+                    () {
+                      SoundService().playClickSound();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EmotionsScreen(),
+                        ),
+                      );
+                    },
+                    Colors.pink.shade600,
                   ),
 
                   const SizedBox(height: 15),

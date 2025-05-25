@@ -47,9 +47,6 @@ class _SpinWheelScreenState extends State<SpinWheelScreen>
   void _spinWheel() {
     if (_isSpinning) return;
 
-    // Play spin sound
-    _soundService.playSpinSound();
-
     setState(() {
       _isSpinning = true;
       _selectedCategory = null;
@@ -73,8 +70,7 @@ class _SpinWheelScreenState extends State<SpinWheelScreen>
           ((2 * pi - normalizedAngle) / sectionAngle).floor() %
           _categories.length;
 
-      // Stop spin sound and play result sound
-      _soundService.stopSpinSound();
+      // Play result sound
       _soundService.playResultSound();
 
       setState(() {

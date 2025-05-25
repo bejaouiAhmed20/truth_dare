@@ -54,6 +54,7 @@ dependencies:
 
   # Audio
   audioplayers: ^5.2.1
+  flutter_local_notifications: ^19.2.1
 
 dev_dependencies:
   flutter_test:

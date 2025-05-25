@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/simple_home_screen.dart';
 import 'services/sound_service.dart';
+import 'services/emotion_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +20,10 @@ void main() async {
   // Force asset loading at startup
   await _preloadAssets();
 
-  // Initialize sound service
+  // Initialize services
   SoundService();
+  EmotionService();
+  NotificationService(); // Initialize notification service
 
   runApp(const MyApp());
 }

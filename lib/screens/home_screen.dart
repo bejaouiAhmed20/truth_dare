@@ -5,6 +5,7 @@ import '../providers/game_provider.dart';
 import '../services/sound_service.dart';
 import 'add_challenge_screen.dart';
 import 'category_selection_screen.dart';
+import 'emotions_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -316,6 +317,24 @@ class HomeScreen extends StatelessWidget {
 
                         const SizedBox(height: 20),
 
+                        // Emotions Button
+                        _buildButton(
+                              context,
+                              '💝 Share Your Emotions',
+                              Icons.emoji_emotions_rounded,
+                              () => _navigateToEmotions(context),
+                              const LinearGradient(
+                                colors: [Color(0xFFE91E63), Color(0xFF9C27B0)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            )
+                            .animate()
+                            .fade(duration: 1350.ms)
+                            .slideY(begin: 0.2, end: 0),
+
+                        const SizedBox(height: 20),
+
                         // Test Sound Button (Debug only)
                         if (kDebugMode) ...[
                           _buildButton(
@@ -531,6 +550,12 @@ class HomeScreen extends StatelessWidget {
     Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (context) => const AddChallengeScreen()));
+  }
+
+  void _navigateToEmotions(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const EmotionsScreen()));
   }
 
   void _testSounds(BuildContext context) async {
