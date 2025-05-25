@@ -52,6 +52,9 @@ dependencies:
   # Utils
   uuid: ^4.3.3
 
+  # Audio
+  audioplayers: ^5.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -82,6 +85,7 @@ flutter:
     - assets/ahmed.jpg
     - assets/maram.jpg
     - assets/logo.png
+    - assets/sounds/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

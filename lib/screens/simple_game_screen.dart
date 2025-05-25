@@ -7,6 +7,7 @@ import '../models/challenge.dart';
 import '../models/db_category.dart';
 import '../services/custom_question_service.dart';
 import '../services/supabase_service.dart';
+import '../services/sound_service.dart';
 
 // Extension to capitalize first letter of a string
 extension StringExtension on String {
@@ -44,6 +45,7 @@ class _SimpleGameScreenState extends State<SimpleGameScreen> {
   // Services
   final CustomQuestionService _customQuestionService = CustomQuestionService();
   final SupabaseService _supabaseService = SupabaseService();
+  final SoundService _soundService = SoundService();
 
   // Player data
   final List<Map<String, dynamic>> _players = [
@@ -141,6 +143,17 @@ class _SimpleGameScreenState extends State<SimpleGameScreen> {
     _loadSettings().then((_) async {
       await _getRandomChallenge();
     });
+
+    // Start background music for extreme and hard categories
+    _startBackgroundMusicIfNeeded();
+  }
+
+  void _startBackgroundMusicIfNeeded() {
+    final categoryName = widget.selectedCategory?.name?.toLowerCase();
+    if (categoryName != null &&
+        (categoryName == 'extreme' || categoryName == 'hard')) {
+      _soundService.playBackgroundMusic();
+    }
   }
 
   // Check Supabase connection
@@ -358,7 +371,10 @@ class _SimpleGameScreenState extends State<SimpleGameScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        _soundService.playClickSound();
+                        Navigator.of(context).pop();
+                      },
                     ),
                     Text(
                       widget.selectedCategory != null
@@ -372,7 +388,10 @@ class _SimpleGameScreenState extends State<SimpleGameScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.refresh, color: Colors.white),
-                      onPressed: _getRandomChallenge,
+                      onPressed: () {
+                        _soundService.playClickSound();
+                        _getRandomChallenge();
+                      },
                     ),
                   ],
                 ),
@@ -548,7 +567,10 @@ class _SimpleGameScreenState extends State<SimpleGameScreen> {
                   width: double.infinity,
                   height: 60,
                   child: ElevatedButton(
-                    onPressed: _nextPlayer,
+                    onPressed: () {
+                      _soundService.playClickSound();
+                      _nextPlayer();
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor:
@@ -584,7 +606,10 @@ class _SimpleGameScreenState extends State<SimpleGameScreen> {
     final color = type == 'truth' ? Colors.blue : Colors.orange;
 
     return GestureDetector(
-      onTap: () => _setChallengeType(type),
+      onTap: () {
+        _soundService.playClickSound();
+        _setChallengeType(type);
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
@@ -602,5 +627,12 @@ class _SimpleGameScreenState extends State<SimpleGameScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Stop background music when leaving the screen
+    _soundService.stopBackgroundMusic();
+    super.dispose();
   }
 }
